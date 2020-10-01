@@ -42,6 +42,12 @@ class Products with ChangeNotifier {
     return [..._items]; //prevent access by reference in memory
   }
 
+  List<Product> get favoriteItems {
+    return _items
+        .where((product) => product.isFavorite)
+        .toList(); //prevent access by reference in memory
+  }
+
   Product findById(String id) {
     return _items.firstWhere((Product item) => item.id == id);
   }
