@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/app/providers/cart.dart';
-import 'package:shop_app/app/widgets/cart_product_item.dart';
+import 'package:shop_app/app/widgets/cart_item.dart' as ci;
 
 class CartScreen extends StatelessWidget {
   static const routeName = '/cart';
@@ -40,26 +40,28 @@ class CartScreen extends StatelessWidget {
           ),
         ),
         Divider(),
-        LayoutBuilder(
-          builder: (context, constrains) {
-            return Container(
-              height: MediaQuery.of(context).size.height - 200,
-              child: ListView.builder(
-                itemCount: cart.items.length,
-                itemBuilder: (ctx, index) {
-                  List keys = cart.items.keys.toList();
-                  String key = keys[index];
-                  CartItem cartItem = cart.items[key];
+        Expanded(
+          child: Container(
+            // height: MediaQuery.of(context).size.height - 200,
+            child: ListView.builder(
+              itemCount: cart.items.length,
+              itemBuilder: (ctx, index) {
+                //  List keys = cart.items.keys.toList();
+                //  String key = keys[index];
+                //  CartItem cartItem = cart.items[key];
 
-                  return CartProductItem(
-                    title: cartItem.title,
-                    amount: cartItem.price,
-                    quantity: cartItem.quantity,
-                  );
-                },
-              ),
-            );
-          },
+                CartItem cartItem = cart.items.values.toList()[index];
+
+                return ci.CartItem(
+                  id: cartItem.id,
+                  productId: cartItem.productId,
+                  title: cartItem.title,
+                  amount: cartItem.price,
+                  quantity: cartItem.quantity,
+                );
+              },
+            ),
+          ),
         ),
       ]),
     );
