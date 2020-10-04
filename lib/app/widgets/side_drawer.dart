@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shop_app/app/screens/orders_screen.dart';
+import 'package:shop_app/app/screens/user_products_screen.dart';
 
 class DrawerItem extends StatelessWidget {
   final String title;
@@ -59,6 +60,12 @@ class SideDrawer extends StatelessWidget {
             Icons.payment,
             () => Navigator.of(context)
                 .pushReplacementNamed(OrdersScreen.routeName)),
+        Divider(),
+        DrawerItem(
+            'User products',
+            Icons.description,
+            () => Navigator.of(context)
+                .pushReplacementNamed(UserProductsScreen.routeName)),
         Divider(),
       ],
     ));
