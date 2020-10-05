@@ -38,11 +38,11 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
       // trigger validation
       _form.currentState.save();
 
-      if (_editedProduct.id == null) {
-        setState(() {
-          isInProgress = true;
-        });
+      setState(() {
+        isInProgress = true;
+      });
 
+      if (_editedProduct.id == null) {
         try {
           await Provider.of<Products>(context, listen: false)
               .addProduct(_editedProduct);
@@ -62,21 +62,17 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
               ],
             ),
           );
-        } finally {
-          setState(() {
-            isInProgress = false;
-          });
-          Navigator.of(context).pop();
         }
       } else {
-        Provider.of<Products>(context, listen: false)
+        await Provider.of<Products>(context, listen: false)
             .updateProduct(_editedProduct.id, _editedProduct);
-        setState(() {
-          isInProgress = false;
-        });
-
-        Navigator.of(context).pop();
       }
+
+      setState(() {
+        isInProgress = false;
+      });
+
+      Navigator.of(context).pop();
     }
   }
 
