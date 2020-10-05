@@ -7,7 +7,7 @@ import './product.dart';
 
 class Products with ChangeNotifier {
   List<Product> _items = [
-    Product(
+    /** Product(
       id: 'p1',
       title: 'Red Shirt',
       description: 'A red shirt - it is pretty red!',
@@ -38,7 +38,7 @@ class Products with ChangeNotifier {
       price: 49.99,
       imageUrl:
           'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
-    ),
+    ),*/
   ];
 
   List<Product> get items {
@@ -55,8 +55,33 @@ class Products with ChangeNotifier {
     return _items.firstWhere((Product item) => item.id == id);
   }
 
+  Future<void> fetchProducts() async {
+    const url = 'https://app-mobile-app-c8573.firebaseio.com/products.json';
+
+    try {
+      final http.Response response = await http.get(url);
+      final extractedDAta = json.decode(response.body) as Map<String, dynamic>;
+      final List<Product> loadedProducts = [];
+
+      extractedDAta.forEach((key, productData) {
+        loadedProducts.add(Product(
+            id: key,
+            title: productData['title'],
+            price: productData['price'],
+            imageUrl: productData['imageUrl'],
+            description: productData['description'],
+            isFavorite: productData['isFavorite']));
+      });
+
+      _items = loadedProducts;
+      notifyListeners();
+    } catch (error) {
+      throw error;
+    }
+  }
+
   Future<void> addProduct(Product value) async {
-    const url = 'https://app-mobile-app-c8573.firebaseio.com/products';
+    const url = 'https://app-mobile-app-c8573.firebaseio.com/products.json';
 
     try {
       http.Response response = await http.post(url,
