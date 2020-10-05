@@ -47,23 +47,24 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
             .addProduct(_editedProduct)
             .catchError((error) {
           return showDialog(
-              context: context,
-              builder: (ctx) => AlertDialog(
-                    title: Text('Error on saving product'),
-                    content: Text('Something went wrong'),
-                    actions: [
-                      FlatButton(
-                          child: Text('Okay'),
-                          onPressed: () {
-                            Navigator.of(ctx).pop();
-                          })
-                    ],
-                  ));
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: Text('An error occurred!'),
+              content: Text('Something went wrong.'),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Okay'),
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                  },
+                )
+              ],
+            ),
+          );
         }).then((_) {
           setState(() {
             isInProgress = false;
           });
-
           Navigator.of(context).pop();
         });
       } else {
