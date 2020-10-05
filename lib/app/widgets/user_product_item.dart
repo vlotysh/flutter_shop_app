@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shop_app/app/providers/product.dart';
 import 'package:shop_app/app/providers/products.dart';
 import 'package:shop_app/app/screens/edit_products_screen.dart';
+import 'package:shop_app/app/widgets/delete_product_button.dart';
 
 class UserProductItem extends StatelessWidget {
   final Product product;
@@ -11,6 +12,8 @@ class UserProductItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scaffold = Scaffold.of(context);
+
     return ListTile(
       title: Text(product.title),
       leading: CircleAvatar(
@@ -27,12 +30,18 @@ class UserProductItem extends StatelessWidget {
                       arguments: product.id);
                 },
                 color: Theme.of(context).primaryColor),
-            IconButton(
-              icon: Icon(Icons.delete),
-              onPressed: () {
-                Provider.of<Products>(context, listen: false).removeProduct(product.id);
+            DeleteProductButton(
+              deleteHandler: () async {
+                try {
+                  await Provider.of<Products>(context, listen: false)
+                      .removeProduct(product.id);
+                } catch (error) {
+                  scaffold.showSnackBar(SnackBar(
+                    content: Text('Error on delete: $error'),
+                    duration: Duration(seconds: 2),
+                  ));
+                }
               },
-              color: Theme.of(context).errorColor,
             ),
           ],
         ),

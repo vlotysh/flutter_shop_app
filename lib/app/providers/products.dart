@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shop_app/app/models/http_exception.dart';
+import 'package:shop_app/config/flavor_config.dart';
 
 import './product.dart';
 
@@ -56,7 +58,7 @@ class Products with ChangeNotifier {
   }
 
   Future<void> fetchProducts() async {
-    const url = 'https://app-mobile-app-c8573.firebaseio.com/products.json';
+    final url = '${FlavorConfig.instance.values.baseStorageUrl}/products.json';
 
     try {
       final http.Response response = await http.get(url);
@@ -81,7 +83,7 @@ class Products with ChangeNotifier {
   }
 
   Future<void> addProduct(Product value) async {
-    const url = 'https://app-mobile-app-c8573.firebaseio.com/products.json';
+    final url = '${FlavorConfig.instance.values.baseStorageUrl}/products.json';
 
     try {
       http.Response response = await http.post(url,
@@ -114,7 +116,7 @@ class Products with ChangeNotifier {
     if (prodIndex >= 0) {
       try {
         final url =
-            'https://app-mobile-app-c8573.firebaseio.com/products/${id}.json';
+            '${FlavorConfig.instance.values.baseStorageUrl}/products/${id}.json';
         await http.patch(url,
             body: json.encode({
               'title': product.title,
@@ -131,9 +133,23 @@ class Products with ChangeNotifier {
     }
   }
 
-  void removeProduct(String id) {
-    _items.removeWhere((product) => product.id == id);
+  Future<void> removeProduct(String id) async {
+    final url =
+        '${FlavorConfig.instance.values.baseStorageUrl}products/${id}.json';
+    final existingProductIndex =
+        _items.indexWhere((product) => product.id == id);
+    var existingProduct = _items[existingProductIndex];
 
+    http.Response response = await http.delete(url);
+    _items.removeAt(existingProductIndex);
     notifyListeners();
+
+    if (response.statusCode >= 400) {
+      _items.insert(existingProductIndex, existingProduct);
+      notifyListeners();
+      throw HttpException('Could not delete product');
+    }
+
+    existingProduct = null;
   }
 }
