@@ -49,10 +49,10 @@ class CartItem extends StatelessWidget {
       child: Card(
         margin: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
         child: ListTile(
-          leading: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: FittedBox(
-              child: CircleAvatar(
+          leading: CircleAvatar(
+            child: Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: FittedBox(
                 child: Text('\$$amount'),
               ),
             ),

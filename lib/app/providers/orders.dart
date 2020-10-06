@@ -10,13 +10,13 @@ class OrderItem {
   final String id;
   final double amount;
   final List<CartItem> products;
-  final DateTime dataTime;
+  final DateTime dateTime;
 
   OrderItem(
       {@required this.id,
       @required this.amount,
       @required this.products,
-      @required this.dataTime});
+      @required this.dateTime});
 }
 
 class Orders with ChangeNotifier {
@@ -26,6 +26,40 @@ class Orders with ChangeNotifier {
     return [..._orders];
   }
 
+  Future<void> fetchOrders() async {
+    final url = '${FlavorConfig.instance.values.baseStorageUrl}/orders.json';
+
+    http.Response response = await http.get(url);
+    final extractedDAta = json.decode(response.body) as Map<String, dynamic>;
+    final List<OrderItem> loadedOrders = [];
+
+    if (extractedDAta == null) {
+      return;
+    }
+
+    extractedDAta.forEach((key, orderData) {
+      final List<CartItem> cartItems = [];
+
+      loadedOrders.add(OrderItem(
+        id: key,
+        amount: orderData['total'],
+        products: (orderData['products'] as List<dynamic>).map((item) {
+          return CartItem(
+            id: item['id'],
+            productId: item['productId'],
+            title: item['title'],
+            quantity: item['quantity'],
+            price: item['price'],
+          );
+        }).toList(),
+        dateTime: DateTime.parse('${orderData['dateTime']}'),
+      ));
+    });
+
+    _orders = loadedOrders;
+    notifyListeners();
+  }
+
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
     final url = '${FlavorConfig.instance.values.baseStorageUrl}/orders.json';
 
@@ -33,8 +67,8 @@ class Orders with ChangeNotifier {
       http.Response response = await http.post(url,
           body: json.encode({
             'total': total,
-            'dataTime': DateTime.now().toIso8601String(),
-            'products': json.encode(cartProducts
+            'dateTime': DateTime.now().toIso8601String(),
+            'products': cartProducts
                 .map((CartItem cartItem) => {
                       'id': cartItem.id,
                       'title': cartItem.title,
@@ -42,13 +76,13 @@ class Orders with ChangeNotifier {
                       'productId': cartItem.productId,
                       'quantity': cartItem.quantity,
                     })
-                .toList()),
+                .toList(),
           }));
 
       _orders.insert(
           0,
           OrderItem(
-              amount: total, products: cartProducts, dataTime: DateTime.now()));
+              amount: total, products: cartProducts, dateTime: DateTime.now()));
       print(_orders);
       notifyListeners();
     } catch (error) {

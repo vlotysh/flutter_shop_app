@@ -4,6 +4,7 @@ import 'package:shop_app/app/providers/cart.dart';
 import 'package:shop_app/app/providers/products.dart';
 import 'package:shop_app/app/screens/cart_screen.dart';
 import 'package:shop_app/app/widgets/badge.dart';
+import 'package:shop_app/app/widgets/loading_spinner.dart';
 import 'package:shop_app/app/widgets/products_grid.dart';
 import 'package:shop_app/app/widgets/side_drawer.dart';
 
@@ -78,7 +79,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         ],
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? LoadingSpinner()
           : ProductsGrid(showOnlyFavorites: _showOnlyFavorites),
       drawer: SideDrawer(),
     );
