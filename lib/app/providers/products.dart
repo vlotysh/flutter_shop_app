@@ -135,7 +135,7 @@ class Products with ChangeNotifier {
 
   Future<void> removeProduct(String id) async {
     final url =
-        '${FlavorConfig.instance.values.baseStorageUrl}products/${id}.json';
+        '${FlavorConfig.instance.values.baseStorageUrl}/products/${id}.json';
     final existingProductIndex =
         _items.indexWhere((product) => product.id == id);
     var existingProduct = _items[existingProductIndex];
