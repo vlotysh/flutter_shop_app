@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:shop_app/app/models/auth_exception.dart';
 import 'package:shop_app/config/flavor_config.dart';
 
 enum AuthType { LOGIN, SIGNUP }
@@ -27,12 +28,16 @@ class Auth with ChangeNotifier {
             'returnSecureToken': true,
           }));
 
-      print(json.decode(response.body));
+      final responseBody = json.decode(response.body);
+
+      if (responseBody['error'] != null) {
+        throw AuthException(responseBody['error']);
+      }
 
       //idToken, refreshToken, expiresIn, localI
       //notifyListeners();
     } catch (error) {
-      print(error);
+      throw error;
     }
   }
 

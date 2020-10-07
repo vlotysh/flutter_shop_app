@@ -120,7 +120,21 @@ class _AuthCardState extends State<AuthCard> {
             .signup(_authData['email'], _authData['password']);
       }
     } catch (error) {
-      print(error);
+      await showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('An error occurred!'),
+          content: Text(error.toString()),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Okay'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            )
+          ],
+        ),
+      );
     }
 
     setState(() {
