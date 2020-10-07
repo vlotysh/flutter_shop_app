@@ -4,8 +4,9 @@ enum Flavor { DEV, QA, PRODUCTION }
 
 class FlavorValues {
   final String baseStorageUrl;
+  final String fireBaseApiKey;
 
-  FlavorValues({@required this.baseStorageUrl});
+  FlavorValues({@required this.baseStorageUrl, @required this.fireBaseApiKey});
 }
 
 class FlavorConfig {
