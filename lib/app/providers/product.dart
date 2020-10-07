@@ -25,13 +25,13 @@ class Product with ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleFavorite() async {
+  void toggleFavorite(String token) async {
     bool oldIsFavorite = isFavorite;
     isFavorite = !oldIsFavorite;
     notifyListeners();
 
     final url =
-        '${FlavorConfig.instance.values.baseStorageUrl}/products/$id.json';
+        '${FlavorConfig.instance.values.baseStorageUrl}/products/$id.json?auth=$token';
 
     try {
       http.Response response =

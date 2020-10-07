@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/app/arguments/product_detail_argument.dart';
+import 'package:shop_app/app/providers/auth.dart';
 import 'package:shop_app/app/providers/cart.dart';
 import 'package:shop_app/app/providers/product.dart';
 import 'package:shop_app/app/screens/product_detail_screen.dart';
@@ -12,6 +13,7 @@ class ProductItem extends StatelessWidget {
     final Cart cart = Provider.of<Cart>(context,
         listen:
             false); // listen false for do not rebuild on change but make some actions with cart
+    final Auth auth = Provider.of<Auth>(context, listen: false);
 
     //listen: false is deny of rebuild by event listener
     // Consumer can wrap part of widget tree that need to by re build
@@ -34,7 +36,7 @@ class ProductItem extends StatelessWidget {
               icon: Icon(
                   product.isFavorite ? Icons.favorite : Icons.favorite_border),
               color: Theme.of(context).accentColor,
-              onPressed: () => product.toggleFavorite(),
+              onPressed: () => product.toggleFavorite(auth.token),
             ),
             child: Text('NEVER CHANGES!'), //passing throw 3 argument `child`
           ),

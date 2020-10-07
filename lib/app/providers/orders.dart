@@ -20,6 +20,10 @@ class OrderItem {
 }
 
 class Orders with ChangeNotifier {
+  final String authToken;
+
+  Orders(this.authToken, this._orders);
+
   List<OrderItem> _orders = [];
 
   List<OrderItem> get orders {
@@ -27,7 +31,8 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> fetchOrders() async {
-    final url = '${FlavorConfig.instance.values.baseStorageUrl}/orders.json';
+    final url =
+        '${FlavorConfig.instance.values.baseStorageUrl}/orders.json?auth=$authToken';
 
     http.Response response = await http.get(url);
     final extractedDAta = json.decode(response.body) as Map<String, dynamic>;
@@ -61,7 +66,8 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
-    final url = '${FlavorConfig.instance.values.baseStorageUrl}/orders.json';
+    final url =
+        '${FlavorConfig.instance.values.baseStorageUrl}/orders.json?auth=$authToken';
 
     try {
       http.Response response = await http.post(url,

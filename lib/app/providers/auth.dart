@@ -13,6 +13,20 @@ class Auth with ChangeNotifier {
   DateTime _expiryDate;
   String _userId;
 
+  bool get isAuthenticated {
+    return token != null;
+  }
+
+  String get token {
+    if (_token != null &&
+        _expiryDate != null &&
+        _expiryDate.isAfter(DateTime.now())) {
+      return _token;
+    }
+
+    return null;
+  }
+
   Future<void> _authentication(
       String email, String password, AuthType type) async {
     String method = type == AuthType.LOGIN ? 'signInWithPassword' : 'signUp';
@@ -31,11 +45,16 @@ class Auth with ChangeNotifier {
       final responseBody = json.decode(response.body);
 
       if (responseBody['error'] != null) {
-        throw AuthException(responseBody['error']);
+        throw AuthException(responseBody['error']['message']);
       }
 
+      _token = responseBody['idToken'];
+      _userId = responseBody['localId'];
+      _expiryDate = DateTime.now()
+          .add(Duration(seconds: int.parse(responseBody['expiresIn'])));
+
       //idToken, refreshToken, expiresIn, localI
-      //notifyListeners();
+      notifyListeners();
     } catch (error) {
       throw error;
     }
@@ -43,7 +62,6 @@ class Auth with ChangeNotifier {
 
   Future<void> signup(String email, String password) async {
     return _authentication(email, password, AuthType.SIGNUP);
-    //idToken, refreshToken, expiresIn, localI
   }
 
   Future<void> login(String email, String password) async {

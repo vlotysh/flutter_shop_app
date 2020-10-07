@@ -8,6 +8,10 @@ import 'package:shop_app/config/flavor_config.dart';
 import './product.dart';
 
 class Products with ChangeNotifier {
+  final String authToken;
+
+  Products(this.authToken, this._items);
+
   List<Product> _items = [
     /** Product(
       id: 'p1',
@@ -58,7 +62,8 @@ class Products with ChangeNotifier {
   }
 
   Future<void> fetchProducts() async {
-    final url = '${FlavorConfig.instance.values.baseStorageUrl}/products.json';
+    final url =
+        '${FlavorConfig.instance.values.baseStorageUrl}/products.json?auth=$authToken';
 
     try {
       final http.Response response = await http.get(url);
@@ -66,6 +71,10 @@ class Products with ChangeNotifier {
 
       if (extractedDAta == null) {
         return;
+      }
+
+      if (extractedDAta.containsKey('error')) {
+        throw new HttpException(extractedDAta['error']);
       }
 
       final List<Product> loadedProducts = [];
@@ -88,7 +97,8 @@ class Products with ChangeNotifier {
   }
 
   Future<void> addProduct(Product value) async {
-    final url = '${FlavorConfig.instance.values.baseStorageUrl}/products.json';
+    final url =
+        '${FlavorConfig.instance.values.baseStorageUrl}/products.json?auth=$authToken';
 
     try {
       http.Response response = await http.post(url,
@@ -121,7 +131,7 @@ class Products with ChangeNotifier {
     if (prodIndex >= 0) {
       try {
         final url =
-            '${FlavorConfig.instance.values.baseStorageUrl}/products/${id}.json';
+            '${FlavorConfig.instance.values.baseStorageUrl}/products/${id}.json?auth=$authToken';
         await http.patch(url,
             body: json.encode({
               'title': product.title,
@@ -140,7 +150,7 @@ class Products with ChangeNotifier {
 
   Future<void> removeProduct(String id) async {
     final url =
-        '${FlavorConfig.instance.values.baseStorageUrl}/products/${id}.json';
+        '${FlavorConfig.instance.values.baseStorageUrl}/products/${id}.json?auth=$authToken';
     final existingProductIndex =
         _items.indexWhere((product) => product.id == id);
     var existingProduct = _items[existingProductIndex];

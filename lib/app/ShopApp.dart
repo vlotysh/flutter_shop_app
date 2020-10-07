@@ -17,39 +17,44 @@ class ShopApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(
-          value: Products(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => Cart(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => Orders(),
-        ),
         ChangeNotifierProvider(
           create: (_) => Auth(),
         ),
+        ChangeNotifierProxyProvider<Auth, Products>(
+            create: (_) => Products(null, []),
+            update: (_, Auth auth, Products product) =>
+                Products(auth.token, product == null ? [] : product.items)),
+        ChangeNotifierProvider(
+          create: (_) => Cart(),
+        ),
+        ChangeNotifierProxyProvider<Auth, Orders>(
+            create: (_) => Orders(null, []),
+            update: (_, Auth auth, Orders orders) =>
+                Orders(auth.token, orders == null ? [] : orders.orders)),
       ],
-      child: MaterialApp(
-        initialRoute: AuthScreen.routeName,
-        routes: {
-          '/': (_) => ProductsOverviewScreen(),
-          AuthScreen.routeName: (_) => AuthScreen(),
-          ProductDetailScreen.routeName: (_) => ProductDetailScreen(),
-          CartScreen.routeName: (_) => CartScreen(),
-          OrdersScreen.routeName: (_) => OrdersScreen(),
-          UserProductsScreen.routeName: (_) => UserProductsScreen(),
-          EditProductsScreen.routeName: (_) => EditProductsScreen(),
-        },
-        title: 'Shop App',
-        theme: ThemeData(
-            primarySwatch: Colors.purple,
-            primaryColor: Colors.purple,
-            accentColor: Colors.deepOrange,
-            fontFamily: 'Lato',
-            textTheme: TextTheme(
-                headline1: TextStyle(fontFamily: 'Lato', color: Colors.white))),
-      ),
+      child: Consumer<Auth>(
+          builder: (ctx, authData, child) => MaterialApp(
+                initialRoute:
+                    authData.isAuthenticated ? '/' : AuthScreen.routeName,
+                routes: {
+                  '/': (_) => ProductsOverviewScreen(),
+                  AuthScreen.routeName: (_) => AuthScreen(),
+                  ProductDetailScreen.routeName: (_) => ProductDetailScreen(),
+                  CartScreen.routeName: (_) => CartScreen(),
+                  OrdersScreen.routeName: (_) => OrdersScreen(),
+                  UserProductsScreen.routeName: (_) => UserProductsScreen(),
+                  EditProductsScreen.routeName: (_) => EditProductsScreen(),
+                },
+                title: 'Shop App',
+                theme: ThemeData(
+                    primarySwatch: Colors.purple,
+                    primaryColor: Colors.purple,
+                    accentColor: Colors.deepOrange,
+                    fontFamily: 'Lato',
+                    textTheme: TextTheme(
+                        headline1: TextStyle(
+                            fontFamily: 'Lato', color: Colors.white))),
+              )),
     );
   }
 }
