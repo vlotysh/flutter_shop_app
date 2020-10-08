@@ -25,17 +25,17 @@ class Product with ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleFavorite(String token) async {
+  void toggleFavorite(String token, String userId) async {
     bool oldIsFavorite = isFavorite;
     isFavorite = !oldIsFavorite;
     notifyListeners();
 
     final url =
-        '${FlavorConfig.instance.values.baseStorageUrl}/products/$id.json?auth=$token';
+        '${FlavorConfig.instance.values.baseStorageUrl}/userFavorites/$userId/$id.json?auth=$token';
 
     try {
       http.Response response =
-          await http.patch(url, body: json.encode({'isFavorite': isFavorite}));
+          await http.put(url, body: json.encode(isFavorite));
 
       if (response.statusCode >= 400) {
         _revertFavorite(oldIsFavorite);

@@ -21,9 +21,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   @override
-  void setState(fn) {
+  void initState() {
     _orderFuture = _obtainOrderFuture(); // For creating only one future
-    super.setState(fn);
+    super.initState();
   }
 
   @override
@@ -35,24 +35,19 @@ class _OrdersScreenState extends State<OrdersScreen> {
       body: FutureBuilder(
         future: _orderFuture,
         builder: (ctx, dataSnapshot) {
-          if (dataSnapshot.connectionState == ConnectionState.waiting) {
+          if (dataSnapshot.connectionState == ConnectionState.waiting)
             return LoadingSpinner();
-          } else {
-            if (dataSnapshot.error != null) {
-              // error handler
-              return Center(child: Text('Error!'));
-            }
+          if (dataSnapshot.hasError) return Center(child: Text('Error!'));
 
-            return Consumer<Orders>(
-              builder: (BuildContext ctx, Orders orderData, child) =>
-                  ListView.builder(
-                itemBuilder: (ctx, index) {
-                  return widget.OrderItem(orderData.orders[index]);
-                },
-                itemCount: orderData.orders.length,
-              ),
-            );
-          }
+          return Consumer<Orders>(
+            builder: (BuildContext ctx, Orders orderData, child) =>
+                ListView.builder(
+              itemBuilder: (ctx, index) {
+                return widget.OrderItem(orderData.orders[index]);
+              },
+              itemCount: orderData.orders.length,
+            ),
+          );
         },
       ),
       drawer: SideDrawer(),

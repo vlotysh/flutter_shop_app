@@ -21,23 +21,30 @@ class ShopApp extends StatelessWidget {
           create: (_) => Auth(),
         ),
         ChangeNotifierProxyProvider<Auth, Products>(
-            create: (_) => Products(null, []),
-            update: (_, Auth auth, Products product) =>
-                Products(auth.token, product == null ? [] : product.items)),
+            create: (_) => Products(null, null, []),
+            update: (_, Auth auth, Products product) => Products(
+                auth.token, auth.userId, product == null ? [] : product.items)),
         ChangeNotifierProvider(
           create: (_) => Cart(),
         ),
-        ChangeNotifierProxyProvider<Auth, Orders>(
-            create: (_) => Orders(null, []),
-            update: (_, Auth auth, Orders orders) =>
-                Orders(auth.token, orders == null ? [] : orders.orders)),
+        ChangeNotifierProxyProvider<Auth, Orders>(create: (_) {
+          print('ChangeNotifierProxyProvider CREATE ORDER');
+          return Orders(null, null, []);
+        }, update: (_, Auth auth, Orders orders) {
+          print('ChangeNotifierProxyProvider UPDATE ORDER');
+
+          return Orders(
+              auth.token, auth.userId, orders == null ? [] : orders.orders);
+        }),
       ],
       child: Consumer<Auth>(
           builder: (ctx, authData, child) => MaterialApp(
-                initialRoute:
-                    authData.isAuthenticated ? '/' : AuthScreen.routeName,
+                home: authData.isAuthenticated
+                    ? ProductsOverviewScreen()
+                    : AuthScreen(),
                 routes: {
-                  '/': (_) => ProductsOverviewScreen(),
+                  ProductsOverviewScreen.routeName: (_) =>
+                      ProductsOverviewScreen(),
                   AuthScreen.routeName: (_) => AuthScreen(),
                   ProductDetailScreen.routeName: (_) => ProductDetailScreen(),
                   CartScreen.routeName: (_) => CartScreen(),

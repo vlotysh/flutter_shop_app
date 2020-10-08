@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shop_app/app/providers/auth.dart';
 import 'package:shop_app/app/screens/orders_screen.dart';
+import 'package:shop_app/app/screens/products_overview_screen.dart';
 import 'package:shop_app/app/screens/user_products_screen.dart';
 
 class DrawerItem extends StatelessWidget {
@@ -24,8 +27,6 @@ class DrawerItem extends StatelessWidget {
 }
 
 class SideDrawer extends StatelessWidget {
-  Widget buildListTile(String title, IconData icon) {}
-
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -52,8 +53,11 @@ class SideDrawer extends StatelessWidget {
         SizedBox(
           height: 20,
         ),
-        DrawerItem('Home', Icons.home,
-            () => Navigator.of(context).pushReplacementNamed('/')),
+        DrawerItem(
+            'Home',
+            Icons.home,
+            () => Navigator.of(context)
+                .pushReplacementNamed(ProductsOverviewScreen.routeName)),
         Divider(),
         DrawerItem(
             'Payment',
@@ -67,6 +71,13 @@ class SideDrawer extends StatelessWidget {
             () => Navigator.of(context)
                 .pushReplacementNamed(UserProductsScreen.routeName)),
         Divider(),
+        Expanded(
+            child: Align(
+                alignment: Alignment.bottomCenter,
+                child: DrawerItem('Logout', Icons.exit_to_app, () {
+                  Navigator.of(context).pop();
+                  Provider.of<Auth>(context, listen: false).logout();
+                }))),
       ],
     ));
   }

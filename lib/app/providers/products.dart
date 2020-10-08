@@ -9,8 +9,9 @@ import './product.dart';
 
 class Products with ChangeNotifier {
   final String authToken;
+  final String userId;
 
-  Products(this.authToken, this._items);
+  Products(this.authToken, this.userId, this._items);
 
   List<Product> _items = [
     /** Product(
@@ -61,9 +62,12 @@ class Products with ChangeNotifier {
     return _items.firstWhere((Product item) => item.id == id);
   }
 
-  Future<void> fetchProducts() async {
+  Future<void> fetchProducts([bool filterByUser = false]) async {
+    final filterString =
+        filterByUser ? '&orderBy="creatorId"&equalTo="$userId"' : '';
+
     final url =
-        '${FlavorConfig.instance.values.baseStorageUrl}/products.json?auth=$authToken';
+        '${FlavorConfig.instance.values.baseStorageUrl}/products.json?auth=$authToken$filterString';
 
     try {
       final http.Response response = await http.get(url);
@@ -77,6 +81,12 @@ class Products with ChangeNotifier {
         throw new HttpException(extractedDAta['error']);
       }
 
+      final urlFavorite =
+          '${FlavorConfig.instance.values.baseStorageUrl}/userFavorites/$userId.json?auth=$authToken';
+      final favoriteResponse = await http.get(urlFavorite);
+      final favoriteDate =
+          json.decode(favoriteResponse.body) as Map<String, dynamic>;
+
       final List<Product> loadedProducts = [];
 
       extractedDAta.forEach((key, productData) {
@@ -86,7 +96,8 @@ class Products with ChangeNotifier {
             price: productData['price'],
             imageUrl: productData['imageUrl'],
             description: productData['description'],
-            isFavorite: productData['isFavorite']));
+            isFavorite:
+                favoriteDate == null ? false : favoriteDate[key] ?? false));
       });
 
       _items = loadedProducts;
@@ -107,7 +118,7 @@ class Products with ChangeNotifier {
             'description': value.description,
             'price': value.price,
             'imageUrl': value.imageUrl,
-            'isFavorite': value.isFavorite
+            'creatorId': userId,
           }));
 
       Map responseBody = json.decode(response.body);
@@ -131,7 +142,7 @@ class Products with ChangeNotifier {
     if (prodIndex >= 0) {
       try {
         final url =
-            '${FlavorConfig.instance.values.baseStorageUrl}/products/${id}.json?auth=$authToken';
+            '${FlavorConfig.instance.values.baseStorageUrl}/products/$userId.json?auth=$authToken';
         await http.patch(url,
             body: json.encode({
               'title': product.title,
@@ -150,7 +161,7 @@ class Products with ChangeNotifier {
 
   Future<void> removeProduct(String id) async {
     final url =
-        '${FlavorConfig.instance.values.baseStorageUrl}/products/${id}.json?auth=$authToken';
+        '${FlavorConfig.instance.values.baseStorageUrl}/products/$id.json?auth=$authToken';
     final existingProductIndex =
         _items.indexWhere((product) => product.id == id);
     var existingProduct = _items[existingProductIndex];

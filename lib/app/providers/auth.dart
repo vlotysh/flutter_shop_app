@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shop_app/app/models/auth_exception.dart';
 import 'package:shop_app/config/flavor_config.dart';
@@ -12,6 +14,7 @@ class Auth with ChangeNotifier {
   String _token;
   DateTime _expiryDate;
   String _userId;
+  Timer _authTimer;
 
   bool get isAuthenticated {
     return token != null;
@@ -27,23 +30,28 @@ class Auth with ChangeNotifier {
     return null;
   }
 
+  String get userId {
+    return _userId;
+  }
+
   Future<void> _authentication(
       String email, String password, AuthType type) async {
     String method = type == AuthType.LOGIN ? 'signInWithPassword' : 'signUp';
-
     String url =
         'https://identitytoolkit.googleapis.com/v1/accounts:$method?key=$_apiKey';
 
     try {
-      http.Response response = await http.post(url,
-          body: json.encode({
-            'email': email,
-            'password': password,
-            'returnSecureToken': true,
-          }));
+      http.Response response = await http
+          .post(url,
+              body: json.encode({
+                'email': email,
+                'password': password,
+                'returnSecureToken': true,
+              }))
+          .timeout(const Duration(seconds: 10));
 
       final responseBody = json.decode(response.body);
-
+      print(responseBody);
       if (responseBody['error'] != null) {
         throw AuthException(responseBody['error']['message']);
       }
@@ -53,7 +61,7 @@ class Auth with ChangeNotifier {
       _expiryDate = DateTime.now()
           .add(Duration(seconds: int.parse(responseBody['expiresIn'])));
 
-      //idToken, refreshToken, expiresIn, localI
+      _autoLogout();
       notifyListeners();
     } catch (error) {
       throw error;
@@ -74,5 +82,26 @@ localId	string	The uid of the authenticated user.
 registered	boolean	Whether the email is for an existing account.*/
     //idToken, refreshToken, expiresIn, localI
     //notifyListeners();
+  }
+
+  logout() {
+    _token = null;
+    _userId = null;
+    _expiryDate = null;
+    if (_authTimer != null) {
+      _authTimer.cancel();
+      _authTimer = null;
+    }
+
+    notifyListeners();
+  }
+
+  void _autoLogout() {
+    if (_authTimer != null) {
+      _authTimer.cancel();
+    }
+
+    final tineToExp = _expiryDate.difference(DateTime.now()).inSeconds;
+    _authTimer = Timer(Duration(seconds: 10), logout);
   }
 }

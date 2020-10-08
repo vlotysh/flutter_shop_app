@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/app/models/auth_exception.dart';
 import 'package:shop_app/app/providers/auth.dart';
+import 'package:shop_app/app/screens/products_overview_screen.dart';
 
 enum AuthMode { Signup, Login }
 
@@ -61,7 +62,8 @@ class AuthScreen extends StatelessWidget {
                       child: Text(
                         'MyShop',
                         style: TextStyle(
-                          color: Theme.of(context).accentTextTheme.title.color,
+                          color:
+                              Theme.of(context).accentTextTheme.subtitle1.color,
                           fontSize: 50,
                           fontFamily: 'Anton',
                           fontWeight: FontWeight.normal,
@@ -121,7 +123,8 @@ class _AuthCardState extends State<AuthCard> {
             .signup(_authData['email'], _authData['password']);
       }
 
-      Navigator.of(context).pushReplacementNamed('/');
+      Navigator.of(context)
+          .pushReplacementNamed(ProductsOverviewScreen.routeName);
     } on AuthException catch (error) {
       var errorMessage = 'Something went wrong! ${error.toString()}';
 
@@ -205,7 +208,6 @@ class _AuthCardState extends State<AuthCard> {
                       return 'Invalid email!';
                     }
                     return null;
-                    return null;
                   },
                   onSaved: (value) {
                     _authData['email'] = value;
@@ -236,6 +238,8 @@ class _AuthCardState extends State<AuthCard> {
                             if (value != _passwordController.text) {
                               return 'Passwords do not match!';
                             }
+
+                            return null;
                           }
                         : null,
                   ),

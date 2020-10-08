@@ -3,11 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:shop_app/app/providers/cart.dart';
 
 class CartItem extends StatelessWidget {
-  String id;
-  String productId;
-  double amount;
-  int quantity;
-  String title;
+  final String id;
+  final String productId;
+  final double amount;
+  final int quantity;
+  final String title;
 
   CartItem({this.id, this.productId, this.amount, this.quantity, this.title});
 

@@ -21,8 +21,9 @@ class OrderItem {
 
 class Orders with ChangeNotifier {
   final String authToken;
+  final String userId;
 
-  Orders(this.authToken, this._orders);
+  Orders(this.authToken, this.userId, this._orders);
 
   List<OrderItem> _orders = [];
 
@@ -32,7 +33,7 @@ class Orders with ChangeNotifier {
 
   Future<void> fetchOrders() async {
     final url =
-        '${FlavorConfig.instance.values.baseStorageUrl}/orders.json?auth=$authToken';
+        '${FlavorConfig.instance.values.baseStorageUrl}/orders.json?auth=$authToken&orderBy="creatorId"&equalTo="$userId"';
 
     http.Response response = await http.get(url);
     final extractedDAta = json.decode(response.body) as Map<String, dynamic>;
@@ -43,8 +44,6 @@ class Orders with ChangeNotifier {
     }
 
     extractedDAta.forEach((key, orderData) {
-      final List<CartItem> cartItems = [];
-
       loadedOrders.add(OrderItem(
         id: key,
         amount: orderData['total'],
@@ -74,6 +73,7 @@ class Orders with ChangeNotifier {
           body: json.encode({
             'total': total,
             'dateTime': DateTime.now().toIso8601String(),
+            'creatorId': userId,
             'products': cartProducts
                 .map((CartItem cartItem) => {
                       'id': cartItem.id,
@@ -85,10 +85,15 @@ class Orders with ChangeNotifier {
                 .toList(),
           }));
 
+      final responseBody = json.decode(response.body);
+
       _orders.insert(
           0,
           OrderItem(
-              amount: total, products: cartProducts, dateTime: DateTime.now()));
+              id: responseBody['name'] ?? null,
+              amount: total,
+              products: cartProducts,
+              dateTime: DateTime.now()));
       print(_orders);
       notifyListeners();
     } catch (error) {
