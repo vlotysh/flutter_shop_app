@@ -82,7 +82,7 @@ class Auth with ChangeNotifier {
       _expiryDate = DateTime.now()
           .add(Duration(seconds: int.parse(responseBody['expiresIn'])));
 
-      // _autoLogout();
+      _autoLogout();
       notifyListeners();
       final prefs = await SharedPreferences.getInstance();
       final userData = json.encode(
@@ -124,6 +124,6 @@ class Auth with ChangeNotifier {
     }
 
     final tineToExp = _expiryDate.difference(DateTime.now()).inSeconds;
-    _authTimer = Timer(Duration(seconds: 10), logout);
+    _authTimer = Timer(Duration(seconds: tineToExp), logout);
   }
 }

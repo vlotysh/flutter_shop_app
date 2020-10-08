@@ -20,19 +20,16 @@ class ProductsOverviewScreen extends StatefulWidget {
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   bool _showOnlyFavorites = false;
   bool _isInit = true;
-  bool _isLoading = false;
+  Future _productFuture;
+
+  Future _obtainProductFuture() {
+    return Provider.of<Products>(context).fetchProducts();
+  }
 
   @override
   void didChangeDependencies() {
     if (_isInit) {
-      setState(() {
-        _isLoading = true;
-      });
-      Provider.of<Products>(context).fetchProducts().then((_) {
-        setState(() {
-          _isLoading = false;
-        });
-      });
+      _productFuture = _obtainProductFuture(); // For creating only one future
     }
     _isInit = false;
     super.didChangeDependencies();
@@ -77,9 +74,13 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
           )
         ],
       ),
-      body: _isLoading
-          ? LoadingSpinner()
-          : ProductsGrid(showOnlyFavorites: _showOnlyFavorites),
+      body: FutureBuilder(
+        future: _productFuture,
+        builder: (ctx, dataSnapshot) =>
+            dataSnapshot.connectionState == ConnectionState.waiting
+                ? LoadingSpinner()
+                : ProductsGrid(showOnlyFavorites: _showOnlyFavorites),
+      ),
       drawer: SideDrawer(),
     );
   }
