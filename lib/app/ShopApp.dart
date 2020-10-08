@@ -10,6 +10,7 @@ import 'package:shop_app/app/screens/edit_products_screen.dart';
 import 'package:shop_app/app/screens/orders_screen.dart';
 import 'package:shop_app/app/screens/product_detail_screen.dart';
 import 'package:shop_app/app/screens/products_overview_screen.dart';
+import 'package:shop_app/app/screens/splash_screen.dart';
 import 'package:shop_app/app/screens/user_products_screen.dart';
 
 class ShopApp extends StatelessWidget {
@@ -41,7 +42,15 @@ class ShopApp extends StatelessWidget {
           builder: (ctx, authData, child) => MaterialApp(
                 home: authData.isAuthenticated
                     ? ProductsOverviewScreen()
-                    : AuthScreen(),
+                    : FutureBuilder(
+                        future: authData.tryAutoLogin(),
+                        builder: (ctx, authResultSnapshot) {
+                          if (authResultSnapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return SplashScreen();
+                          }
+                          return AuthScreen();
+                        }),
                 routes: {
                   ProductsOverviewScreen.routeName: (_) =>
                       ProductsOverviewScreen(),

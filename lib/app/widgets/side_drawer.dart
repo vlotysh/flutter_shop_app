@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/app/providers/auth.dart';
+import 'package:shop_app/app/screens/auth_screen.dart';
 import 'package:shop_app/app/screens/orders_screen.dart';
 import 'package:shop_app/app/screens/products_overview_screen.dart';
 import 'package:shop_app/app/screens/user_products_screen.dart';
@@ -75,7 +76,8 @@ class SideDrawer extends StatelessWidget {
             child: Align(
                 alignment: Alignment.bottomCenter,
                 child: DrawerItem('Logout', Icons.exit_to_app, () {
-                  Navigator.of(context).pop();
+                  Navigator.of(context)
+                      .pushReplacementNamed(AuthScreen.routeName);
                   Provider.of<Auth>(context, listen: false).logout();
                 }))),
       ],

@@ -23,20 +23,17 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   bool _isLoading = false;
 
   @override
-  void didChangeDependencies() async {
+  void didChangeDependencies() {
     if (_isInit) {
       setState(() {
         _isLoading = true;
       });
-
-      try {
-        await Provider.of<Products>(context).fetchProducts();
-      } catch (error) {}
+      Provider.of<Products>(context).fetchProducts().then((_) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
     }
-
-    setState(() {
-      _isLoading = false;
-    });
     _isInit = false;
     super.didChangeDependencies();
   }

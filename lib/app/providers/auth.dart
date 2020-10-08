@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shop_app/app/models/auth_exception.dart';
 import 'package:shop_app/config/flavor_config.dart';
 
@@ -34,6 +35,26 @@ class Auth with ChangeNotifier {
     return _userId;
   }
 
+  Future<bool> tryAutoLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!prefs.containsKey('userData')) {
+      return false;
+    }
+    final extractedUserData =
+        json.decode(prefs.getString('userData')) as Map<String, Object>;
+    final expiryDate = DateTime.parse(extractedUserData['expiryDate']);
+
+    if (expiryDate.isBefore(DateTime.now())) {
+      return false;
+    }
+    _token = extractedUserData['token'];
+    _userId = extractedUserData['userId'];
+    _expiryDate = expiryDate;
+    notifyListeners();
+    _autoLogout();
+    return true;
+  }
+
   Future<void> _authentication(
       String email, String password, AuthType type) async {
     String method = type == AuthType.LOGIN ? 'signInWithPassword' : 'signUp';
@@ -61,8 +82,17 @@ class Auth with ChangeNotifier {
       _expiryDate = DateTime.now()
           .add(Duration(seconds: int.parse(responseBody['expiresIn'])));
 
-      _autoLogout();
+      // _autoLogout();
       notifyListeners();
+      final prefs = await SharedPreferences.getInstance();
+      final userData = json.encode(
+        {
+          'token': _token,
+          'userId': _userId,
+          'expiryDate': _expiryDate.toIso8601String(),
+        },
+      );
+      prefs.setString('userData', userData);
     } catch (error) {
       throw error;
     }
@@ -74,17 +104,9 @@ class Auth with ChangeNotifier {
 
   Future<void> login(String email, String password) async {
     return _authentication(email, password, AuthType.LOGIN);
-    /*idToken	string	A Firebase Auth ID token for the authenticated user.
-email	string	The email for the authenticated user.
-refreshToken	string	A Firebase Auth refresh token for the authenticated user.
-expiresIn	string	The number of seconds in which the ID token expires.
-localId	string	The uid of the authenticated user.
-registered	boolean	Whether the email is for an existing account.*/
-    //idToken, refreshToken, expiresIn, localI
-    //notifyListeners();
   }
 
-  logout() {
+  void logout() {
     _token = null;
     _userId = null;
     _expiryDate = null;
