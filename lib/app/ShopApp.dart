@@ -29,11 +29,8 @@ class ShopApp extends StatelessWidget {
           create: (_) => Cart(),
         ),
         ChangeNotifierProxyProvider<Auth, Orders>(create: (_) {
-          print('ChangeNotifierProxyProvider CREATE ORDER');
           return Orders(null, null, []);
         }, update: (_, Auth auth, Orders orders) {
-          print('ChangeNotifierProxyProvider UPDATE ORDER');
-
           return Orders(
               auth.token, auth.userId, orders == null ? [] : orders.orders);
         }),
